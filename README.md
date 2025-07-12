@@ -1,5 +1,3 @@
-# Projeto Final Python – Certificação PCAP (Exame PCAP-31-0x)
-
 ## 🎯 Contexto do Problema
 
 Pequena livraria local que precisa de um sistema para gerenciar o catálogo de livros, clientes e realizar vendas de forma organizada.  
