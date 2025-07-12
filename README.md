@@ -1,13 +1,3 @@
-
-ajusteReadme.ipynb
-ajusteReadme.ipynb_
-
-[ ]
-   1
-
-Comece a programar ou gere código com IA.
-## Projeto Final Python – Certificação PCAP (Exame PCAP-31-0x)
-
 ### 🎯 Contexto do Problema
 
 Pequena livraria local que precisa de um sistema para gerenciar o catálogo de livros, clientes e realizar vendas de forma organizada. A solução deverá ter funcionalidades básicas de cadastro, pesquisa e controle de vendas, utilizando boas práticas de programação.
