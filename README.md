@@ -1,27 +1,33 @@
-### 🎯 Contexto do Problema
+# Projeto Final Python – Certificação PCAP (Exame PCAP-31-0x)
 
-Pequena livraria local que precisa de um sistema para gerenciar o catálogo de livros, clientes e realizar vendas de forma organizada. A solução deverá ter funcionalidades básicas de cadastro, pesquisa e controle de vendas, utilizando boas práticas de programação.
+## 🎯 Contexto do Problema
+
+Pequena livraria local que precisa de um sistema para gerenciar o catálogo de livros, clientes e realizar vendas de forma organizada.  
+A solução deverá ter funcionalidades básicas de cadastro, pesquisa e controle de estoque/vendas.
 
 ---
 
-Projeto Final Python – Certificação PCAP (Exame PCAP-31-0x)
-🎯 Contexto do Problema
-Pequena livraria local que precisa de um sistema para gerenciar o catálogo de livros, clientes e realizar vendas de forma organizada. A solução deverá ter funcionalidades básicas de cadastro, pesquisa e controle de vendas, utilizando boas práticas de programação.
+## 📋 Requisitos Funcionais
 
-📋 Requisitos Funcionais
-*
+- (Adicionar requisitos funcionais detalhados aqui)
 
-📌 Requisitos Não‑Funcionais
-Código PEP‑8, com docstrings em todos os módulos/funções.
-Tratamento robusto de exceções definidas em errors.py.
-Persistência dos dados em CockroachDB (SQL) usando transações.
-Testes unitários (>80 % de cobertura) em pytest.
-CI no GitHub Actions executando testes a cada push.
+## 📌 Requisitos Não‑Funcionais
 
-🏦 Esquema de Banco de Dados (CockroachDB)
--- habilite a extensão crypto se precisar de UUID:  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+- Código PEP‑8, com docstrings em todos os módulos/funções.
+- Tratamento robusto de exceções definidas em `errors.py`.
+- Persistência dos dados em CockroachDB (SQL) usando transações.
+- Testes unitários (>80 % de cobertura) em pytest.
+- CI no GitHub Actions executando testes a cada push.
 
-```
+---
+
+## 🏦 Esquema de Banco de Dados (CockroachDB)
+
+> Observação: CockroachDB é compatível com PostgreSQL; tipos e sintaxe seguem o padrão.  
+> Habilite a extensão crypto se precisar de UUID:  
+> `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`
+
+```sql
 CREATE TABLE IF NOT EXISTS livros (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo       STRING NOT NULL,
@@ -50,11 +56,8 @@ CREATE TABLE IF NOT EXISTS vendas (
 
 CREATE INDEX IF NOT EXISTS idx_vendas_cliente ON vendas(cliente_id);
 CREATE INDEX IF NOT EXISTS idx_vendas_livro   ON vendas(livro_id);
-Observação: CockroachDB é compatível com PostgreSQL; tipos e sintaxe seguem o padrão.
 ```
-
-
-📂 Estrutura do Repositório
+## 📂 Estrutura do Repositório
 ```
 sab-gestao-biblioteca/
 ├── src/
@@ -73,11 +76,12 @@ sab-gestao-biblioteca/
 ├── requirements.txt
 └── README.md
 ```
+## 📐 Especificação Técnica por Módulo
+- src/db.py
+- Conexão segura ao CockroachDB Cloud
+- Usa DATABASE_URL como string de conexão completa, idêntica à exibida no painel CockroachLabs (ex.: postgresql://rodrigo:<senha>@artful-elf-13228.j77.aws...).
 
-📐 Especificação Técnica por Módulo (instruções para dev contratado)
-src/db.py
-Conexão segura ao CockroachDB Cloud – usa DATABASE_URL como string de conexão completa, idêntica à que a CockroachLabs exibe no painel (ex.: postgresql://rodrigo:<senha>@artful-elf-13228.j77.aws-us-east-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full).
-
+```
 """
 Gerencia a conexão com CockroachDB usando SQLAlchemy.
 """
@@ -113,54 +117,56 @@ def get_session():
         raise
     finally:
         session.close()
-Teste rápido de conectividade (opcional)
-"""quick_check.py"""
-import os
-import psycopg2
+```
 
-conn = psycopg2.connect(os.environ["DATABASE_URL"])
-with conn.cursor() as cur:
-    cur.execute("SELECT now()")
-    print(cur.fetchone())
-src/livros.py
-CRUD completo sobre tabela livros.
+## src/livros.py
+- CRUD completo sobre tabela livros.
 
-Funções mínimas:
+### Funções mínimas:
 
-cadastrar_livro(titulo, autor, isbn, preco, estoque) -> UUID
-listar_livros() -> List[Livro]
-buscar(titulo:str=None, autor:str=None, isbn:str=None) -> List[Livro]
-atualizar_estoque(isbn, delta:int)
-Regra: estoque nunca negativo; lançar EstoqueInsuficienteError.
+- cadastrar_livro(titulo, autor, isbn, preco, estoque) -> UUID
+- listar_livros() -> List[Livro]
+- buscar(titulo:str=None, autor:str=None, isbn:str=None) -> List[Livro]
+- atualizar_estoque(isbn, delta:int)
+- Regra: estoque nunca negativo; lançar EstoqueInsuficienteError.
 
-src/clientes.py
-CRUD sobre tabela clientes.
+## src/clientes.py
+- CRUD sobre tabela clientes.
 
-Funções mínimas:
+### Funções mínimas:
 
-cadastrar_cliente(nome, telefone) -> UUID
-listar_clientes() -> List[Cliente]
-obter_cliente_por_nome(nome) -> Cliente
-Regra: impedir duplicidade de nome + telefone.
+- cadastrar_cliente(nome, telefone) -> UUID
+- listar_clientes() -> List[Cliente]
+- obter_cliente_por_nome(nome) -> Cliente
+- Regra: impedir duplicidade de nome + telefone.
 
-src/vendas.py
-Coordena transação que envolve cliente, livro e baixa de estoque.
+## src/vendas.py
+- Coordena transação que envolve cliente, livro e baixa de estoque.
 
-Funções mínimas:
+### Funções mínimas:
 
-registrar_venda(nome_cliente, isbn, quantidade) -> UUID
-listar_vendas() -> List[Venda]
-relatorio_diario(data:date) -> Decimal
-Regras:
+- registrar_venda(nome_cliente, isbn, quantidade) -> UUID
+- listar_vendas() -> List[Venda]
+- relatorio_diario(data:date) -> Decimal
+- 
+### Regras:
 
-Tudo em uma transação: se falhar baixa de estoque, rollback.
-valor_total = livro.preco * quantidade no momento da venda.
-src/errors.py
-Classes de exceção: LivroJaExisteError, LivroNaoEncontradoError, ClienteJaExisteError, ClienteNaoEncontradoError, EstoqueInsuficienteError, TransacaoErro.
+- Tudo em uma transação: se falhar baixa de estoque, rollback.
+- valor_total = livro.preco * quantidade no momento da venda.
 
-src/main.py
-Menu CLI textual:
+## src/errors.py
+### Classes de exceção:
 
+* LivroJaExisteError
+* LivroNaoEncontradoError
+* ClienteJaExisteError
+* ClienteNaoEncontradoError
+* EstoqueInsuficienteError
+* TransacaoErro
+  
+## src/main.py
+
+```
 1  – Cadastrar livro
 2  – Listar livros
 3  – Buscar livro
@@ -170,16 +176,17 @@ Menu CLI textual:
 7  – Relatório de vendas (hoje)
 0  – Sair
 Cada opção chama funções de negócio; main.py não contém SQL.
+```
 
-🚀 Roadmap (GitHub Projects revisado)
-#	Cartão	Descrição	Estimativa
-1	Setup repositório	Pastas, requirements, linters	0.5 h
-2	Conexão DB	Implementar db.py com SQLAlchemy	0.8 h
-3	Tabelas SQL	Rodar script schema.sql no Cockroach	0.3 h
-4	Módulo livros	CRUD + testes	1.2 h
-5	Módulo clientes	CRUD + testes	1 h
-6	Módulo vendas	Transação + relatório + testes	1.5 h
-7	CLI	main.py menu e validações	1 h
-8	CI GitHub	Workflow pytest + coverage badge	0.5 h
-9	Documentação	Atualizar README, diagramas	0.5 h
-Produtos pagos do Colab - Cancelar contratos
+## 🚀 Roadmap (GitHub Projects revisado)
+| #  | Cartão            | Descrição                            | Estimativa |
+|----|-------------------|--------------------------------------|------------|
+| 1  | Setup repositório | Pastas, requirements, linters        | 0.5 h      |
+| 2  | Conexão DB        | Implementar db.py com SQLAlchemy     | 0.8 h      |
+| 3  | Tabelas SQL       | Rodar script schema.sql no Cockroach | 0.3 h      |
+| 4  | Módulo livros     | CRUD + testes                        | 1.2 h      |
+| 5  | Módulo clientes   | CRUD + testes                        | 1 h        |
+| 6  | Módulo vendas     | Transação + relatório + testes       | 1.5 h      |
+| 7  | CLI               | main.py menu e validações            | 1 h        |
+| 8  | CI GitHub         | Workflow pytest + coverage badge     | 0.5 h      |
+| 9  | Documentação      | Atualizar README, diagramas          | 0.5 h      |
