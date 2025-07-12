@@ -17,9 +17,11 @@ Tratamento robusto de exceções definidas em errors.py.
 Persistência dos dados em CockroachDB (SQL) usando transações.
 Testes unitários (>80 % de cobertura) em pytest.
 CI no GitHub Actions executando testes a cada push.
+
 🏦 Esquema de Banco de Dados (CockroachDB)
 -- habilite a extensão crypto se precisar de UUID:  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+```
 CREATE TABLE IF NOT EXISTS livros (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo       STRING NOT NULL,
@@ -49,8 +51,11 @@ CREATE TABLE IF NOT EXISTS vendas (
 CREATE INDEX IF NOT EXISTS idx_vendas_cliente ON vendas(cliente_id);
 CREATE INDEX IF NOT EXISTS idx_vendas_livro   ON vendas(livro_id);
 Observação: CockroachDB é compatível com PostgreSQL; tipos e sintaxe seguem o padrão.
+```
+
 
 📂 Estrutura do Repositório
+```
 sab-gestao-biblioteca/
 ├── src/
 │   ├── db.py            # Conexão ao CockroachDB (SQLAlchemy + pooling)
@@ -67,6 +72,8 @@ sab-gestao-biblioteca/
 ├── .github/workflows/ci.yml
 ├── requirements.txt
 └── README.md
+```
+
 📐 Especificação Técnica por Módulo (instruções para dev contratado)
 src/db.py
 Conexão segura ao CockroachDB Cloud – usa DATABASE_URL como string de conexão completa, idêntica à que a CockroachLabs exibe no painel (ex.: postgresql://rodrigo:<senha>@artful-elf-13228.j77.aws-us-east-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full).
