@@ -1,23 +1,105 @@
-## 🎯 Contexto do Problema
+# Gestão de Biblioteca
 
-Pequena livraria local que precisa de um sistema para gerenciar o catálogo de livros, clientes e realizar vendas de forma organizada.  
-A solução deverá ter funcionalidades básicas de cadastro, pesquisa e controle de estoque/vendas.
+Sistema web para gestão de biblioteca com frontend responsivo e backend API em FastAPI.
 
----
+## Estrutura de Pastas
 
-## 📋 Requisitos Funcionais
+```
+.
+├── src/
+│   ├── app.py          # API FastAPI principal
+│   ├── db.py           # Conexão com banco de dados
+│   └── ...             # Outros módulos
+├── static/
+│   ├── css/
+│   │   └── style.css   # Estilos CSS
+│   └── js/
+│       └── script.js   # JavaScript frontend
+├── templates/
+│   └── index.html      # Template HTML
+├── tests/              # Testes
+├── docs/               # Documentação
+├── requirements.txt    # Dependências Python
+├── schema.sql          # Schema do banco
+├── seed.sql            # Dados iniciais
+└── .env.example        # Exemplo de variáveis de ambiente
+```
 
-- (Adicionar requisitos funcionais detalhados aqui)
+## Guia de Início Rápido
 
-## 📌 Requisitos Não‑Funcionais
+### 1. Configuração do Banco de Dados
 
-- Código PEP‑8, com docstrings em todos os módulos/funções.
-- Tratamento robusto de exceções definidas em `errors.py`.
-- Persistência dos dados em CockroachDB (SQL) usando transações.
-- Testes unitários (>80 % de cobertura) em pytest.
-- CI no GitHub Actions executando testes a cada push.
+#### Opção 1: Supabase (Recomendado)
+1. Crie uma conta no [Supabase](https://supabase.com)
+2. Crie um novo projeto
+3. Vá para SQL Editor e execute o conteúdo de `schema.sql`
+4. Execute o conteúdo de `seed.sql` para dados iniciais
+5. Copie a connection string da aba Settings > Database
 
----
+#### Opção 2: PostgreSQL Local
+1. Instale PostgreSQL
+2. Crie um banco de dados
+3. Execute `schema.sql` e `seed.sql`
+
+### 2. Configuração do Ambiente
+1. Clone o repositório
+2. Instale dependências: `pip install -r requirements.txt`
+3. Copie `.env.example` para `.env`
+4. Configure as variáveis:
+   ```
+   DATABASE_URL=postgresql://user:password@host:port/dbname
+   SECRET_KEY=sua-chave-secreta-aqui
+   ```
+
+### 3. Executar Localmente
+```bash
+cd src
+python app.py
+# ou
+uvicorn app:app --reload
+```
+Acesse http://localhost:8000
+
+### 4. Deploy
+
+#### Railway (Recomendado)
+1. Crie conta no [Railway](https://railway.app)
+2. Conecte seu repositório Git
+3. Configure variáveis de ambiente no painel
+4. Railway detectará automaticamente o projeto Python e fará deploy
+
+#### Render
+1. Crie conta no [Render](https://render.com)
+2. Crie um novo Web Service
+3. Conecte o repositório
+4. Configure variáveis de ambiente:
+   - `DATABASE_URL`
+   - `SECRET_KEY`
+5. Defina build command: `pip install -r requirements.txt`
+6. Defina start command: `uvicorn src.app:app --host 0.0.0.0 --port $PORT`
+7. Caso use deploy automático, o arquivo `render.yaml` já está incluído na raiz do projeto.
+
+#### Github Pages (frontend apenas)
+1. Faça deploy do frontend estático a partir da branch `main` ou `gh-pages`.
+2. Publique o arquivo `index.html` na raiz do repositório e mantenha `static/` no mesmo nível.
+3. Atualize `static/js/script.js` para usar a URL do backend hospedado no Render:
+   ```js
+   const API_BASE = 'https://SEU_BACKEND_AQUI';
+   ```
+4. Em GitHub Pages, o frontend será servido como site estático; todas as chamadas de API devem apontar para o backend remoto.
+
+#### Outras Opções
+- Heroku: Use buildpack Python
+- Vercel: Para frontend estático, mas backend precisa de serverless
+
+## Funcionalidades
+
+- **Autenticação**: Login/cadastro com JWT
+- **RBAC**: Usuário comum e Administrador
+- **Livros**: CRUD completo, busca
+- **Clientes**: Cadastro e listagem
+- **Vendas**: Registro com controle de estoque
+- **Dashboard**: Visões diferentes por role
 
 ## 🏦 Esquema de Banco de Dados (CockroachDB)
 

@@ -1,3 +1,8 @@
+-- População de usuários (senhas: admin123, user123)
+INSERT INTO usuarios (username, email, hashed_password, role) VALUES
+  ('admin', 'admin@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPjYLC7hZwUe', 'admin'),
+  ('user', 'user@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPjYLC7hZwUe', 'user');
+
 -- População de livros
 INSERT INTO livros (titulo, autor, isbn, preco, estoque) VALUES
   ('Python para Iniciantes',     'Maria Andrade',  '9788501400011', 89.90, 15),
