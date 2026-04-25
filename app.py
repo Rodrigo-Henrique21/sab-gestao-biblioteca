@@ -1,26 +1,17 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List, Optional
 import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from db import get_cursor
+from src.db import get_cursor
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = FastAPI(title="Gestão de Biblioteca API")
-
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Templates
-templates = Jinja2Templates(directory="templates")
 
 # Security
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
@@ -191,10 +182,6 @@ def registrar_venda(venda: VendaCreate, current_user: dict = Depends(get_current
         )
         cur.execute("UPDATE livros SET estoque = estoque - %s WHERE id = %s", (venda.quantidade, venda.livro_id))
     return {"message": "Venda registrada"}
-
-@app.get("/", response_class=HTMLResponse)
-def read_root():
-    return templates.TemplateResponse("index.html", {"request": {}})
 
 if __name__ == "__main__":
     import uvicorn
