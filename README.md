@@ -76,7 +76,7 @@ Acesse http://localhost:8000
    - `DATABASE_URL`
    - `SECRET_KEY`
 5. Defina build command: `pip install -r requirements.txt`
-6. Defina start command: `uvicorn src.app:app --host 0.0.0.0 --port $PORT`
+6. Defina start command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
 7. Caso use deploy automático, o arquivo `render.yaml` já está incluído na raiz do projeto.
 
 #### Github Pages (frontend apenas)
@@ -84,7 +84,7 @@ Acesse http://localhost:8000
 2. Publique o arquivo `index.html` na raiz do repositório e mantenha `static/` no mesmo nível.
 3. Atualize `static/js/script.js` para usar a URL do backend hospedado no Render:
    ```js
-   const API_BASE = 'https://SEU_BACKEND_AQUI';
+   const API_BASE = 'https://sab-gestao-biblioteca.onrender.com';
    ```
 4. Em GitHub Pages, o frontend será servido como site estático; todas as chamadas de API devem apontar para o backend remoto.
 
