@@ -1,4 +1,4 @@
-const API_BASE = 'https://SEU_BACKEND_AQUI';
+const API_BASE = 'https://sab-gestao-biblioteca.onrender.com';
 let token = localStorage.getItem('token');
 let currentUser = null;
 
