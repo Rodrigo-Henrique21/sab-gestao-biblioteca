@@ -1,262 +1,220 @@
 # Gestão de Biblioteca
 
-Sistema web para gestão de biblioteca com frontend responsivo e backend API em FastAPI.
+Projeto de gestão de biblioteca com frontend estático e backend em FastAPI.
 
-## Estrutura de Pastas
+## Visão Geral do Projeto
+
+Este repositório reúne duas partes principais:
+
+1. **Frontend**: interface web leve construída com HTML, CSS e JavaScript, que roda como aplicação estática.
+2. **Backend**: API REST em FastAPI para gerenciar livros, clientes, vendas e autenticação.
+3. **Banco de dados**: compatível com PostgreSQL / CockroachDB, usando `DATABASE_URL` para conexão.
+
+O frontend consome o backend via chamadas AJAX e pode ser hospedado separadamente do servidor de API.
+
+## Frontend
+
+O frontend é construído com arquivos estáticos:
+
+- `templates/index.html` — página principal do sistema
+- `static/css/style.css` — estilos responsivos
+- `static/js/script.js` — lógica de consumo da API, envio de formulários e renderização de dados
+
+### O que o frontend faz
+
+- Exibe lista de livros e clientes
+- Permite cadastro de livros e clientes
+- Registra vendas e atualiza estoque
+- Chama o backend para todas as operações de CRUD
+
+### Como o frontend se conecta ao backend
+
+No arquivo `static/js/script.js`, existe uma constante para a URL base da API:
+
+```js
+const API_BASE = 'http://localhost:8000';
+```
+
+Para deploy no GitHub Pages, essa URL deve apontar para o serviço do backend hospedado no Render ou outro provider.
+
+## Backend
+
+O backend é uma API Python usando FastAPI. Ele expõe endpoints para:
+
+- livros
+- clientes
+- vendas
+- autenticação e autorização
+
+Arquivos principais:
+
+- `src/app.py` — aplicação FastAPI principal
+- `src/db.py` — conexão com banco de dados
+- `src/livros.py` — regras de negócio dos livros
+- `src/clientes.py` — regras de negócio dos clientes
+- `src/vendas.py` — regras de negócio de vendas
+- `src/errors.py` — exceções personalizadas
+- `src/main.py` — orquestração / ponto de entrada adicional
+
+### Principais regras do backend
+
+- Controle de estoque para vendas
+- Transações consistentes ao registrar venda
+- Validação de dados e tratamento de erros
+- Possibilidade de separar autenticação via JWT
+
+## Instalação Local
+
+### Pré-requisitos
+
+- Python 3.10+ instalado
+- PostgreSQL ou outro banco compatível
+- Virtualenv recomendado
+
+### Passos
+
+```bash
+python -m venv env
+env\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### Variáveis de ambiente
+
+Copie o arquivo de exemplo:
+
+```powershell
+copy .env.example .env
+```
+
+Configure no `.env` as variáveis:
+
+```env
+DATABASE_URL=postgresql://user:password@host:port/dbname
+SECRET_KEY=sua-chave-secreta-aqui
+```
+
+### Executar localmente
+
+```bash
+cd src
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+
+Acesse `http://localhost:8000` para o backend. Se o frontend estiver servido pela própria API, o `index.html` deverá estar disponível.
+
+## Deploy
+
+### Deploy do Backend no Render
+
+1. Crie conta no [Render](https://render.com).
+2. Crie um novo serviço do tipo **Web Service**.
+3. Conecte seu repositório Git.
+4. Configure as variáveis de ambiente:
+   - `DATABASE_URL`
+   - `SECRET_KEY`
+5. Build Command:
+   ```bash
+   pip install -r requirements.txt
+   ```
+6. Start Command:
+   ```bash
+   uvicorn app:app --host 0.0.0.0 --port $PORT
+   ```
+7. Mantenha o arquivo `render.yaml` na raiz para facilitar deploy automático e configurações de service.
+
+> No Render, o backend receberá uma URL pública. Use essa URL para o frontend estático.
+
+### Deploy do Frontend no GitHub Pages
+
+O GitHub Pages só serve arquivos estáticos, então aqui hospedamos apenas o frontend.
+
+1. Faça commit de `templates/index.html` e `static/` no repositório.
+2. No GitHub, ative o GitHub Pages apontando para a branch `main` ou `gh-pages`.
+3. Garanta que `index.html` e `static/` estejam no mesmo nível a partir da raiz do site.
+4. Ajuste `static/js/script.js` para usar a URL do backend hospedado no Render:
+
+```js
+const API_BASE = 'https://seu-backend.onrender.com';
+```
+
+5. Publique e teste a aplicação estática.
+
+> Importante: GitHub Pages não executa Python. Todas as operações de dados continuarão a depender do backend remoto.
+
+### Como usar Render + GitHub Pages juntos
+
+- Backend: `https://seu-backend.onrender.com` no Render
+- Frontend: GitHub Pages serve `index.html`
+- Atualize a variável `API_BASE` para a URL do backend
+- O frontend estático faz requisições AJAX ao backend remoto
+
+## Estrutura do Projeto
 
 ```
 .
 ├── src/
-│   ├── app.py          # API FastAPI principal
-│   ├── db.py           # Conexão com banco de dados
-│   └── ...             # Outros módulos
+│   ├── app.py
+│   ├── db.py
+│   ├── livros.py
+│   ├── clientes.py
+│   ├── vendas.py
+│   ├── errors.py
+│   └── main.py
+├── templates/
+│   └── index.html
 ├── static/
 │   ├── css/
-│   │   └── style.css   # Estilos CSS
+│   │   └── style.css
 │   └── js/
-│       └── script.js   # JavaScript frontend
-├── templates/
-│   └── index.html      # Template HTML
-├── tests/              # Testes
-├── docs/               # Documentação
-├── requirements.txt    # Dependências Python
-├── schema.sql          # Schema do banco
-├── seed.sql            # Dados iniciais
-└── .env.example        # Exemplo de variáveis de ambiente
-```
-
-## Guia de Início Rápido
-
-### 1. Configuração do Banco de Dados
-
-#### Opção 1: Supabase (Recomendado)
-1. Crie uma conta no [Supabase](https://supabase.com)
-2. Crie um novo projeto
-3. Vá para SQL Editor e execute o conteúdo de `schema.sql`
-4. Execute o conteúdo de `seed.sql` para dados iniciais
-5. Copie a connection string da aba Settings > Database
-
-#### Opção 2: PostgreSQL Local
-1. Instale PostgreSQL
-2. Crie um banco de dados
-3. Execute `schema.sql` e `seed.sql`
-
-### 2. Configuração do Ambiente
-1. Clone o repositório
-2. Instale dependências: `pip install -r requirements.txt`
-3. Copie `.env.example` para `.env`
-4. Configure as variáveis:
-   ```
-   DATABASE_URL=postgresql://user:password@host:port/dbname
-   SECRET_KEY=sua-chave-secreta-aqui
-   ```
-
-### 3. Executar Localmente
-```bash
-cd src
-python app.py
-# ou
-uvicorn app:app --reload
-```
-Acesse http://localhost:8000
-
-### 4. Deploy
-
-#### Railway (Recomendado)
-1. Crie conta no [Railway](https://railway.app)
-2. Conecte seu repositório Git
-3. Configure variáveis de ambiente no painel
-4. Railway detectará automaticamente o projeto Python e fará deploy
-
-#### Render
-1. Crie conta no [Render](https://render.com)
-2. Crie um novo Web Service
-3. Conecte o repositório
-4. Configure variáveis de ambiente:
-   - `DATABASE_URL`
-   - `SECRET_KEY`
-5. Defina build command: `pip install -r requirements.txt`
-6. Defina start command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
-7. Caso use deploy automático, o arquivo `render.yaml` já está incluído na raiz do projeto.
-
-#### Github Pages (frontend apenas)
-1. Faça deploy do frontend estático a partir da branch `main` ou `gh-pages`.
-2. Publique o arquivo `index.html` na raiz do repositório e mantenha `static/` no mesmo nível.
-3. Atualize `static/js/script.js` para usar a URL do backend hospedado no Render:
-   ```js
-   const API_BASE = 'https://sab-gestao-biblioteca.onrender.com';
-   ```
-4. Em GitHub Pages, o frontend será servido como site estático; todas as chamadas de API devem apontar para o backend remoto.
-
-#### Outras Opções
-- Heroku: Use buildpack Python
-- Vercel: Para frontend estático, mas backend precisa de serverless
-
-## Funcionalidades
-
-- **Autenticação**: Login/cadastro com JWT
-- **RBAC**: Usuário comum e Administrador
-- **Livros**: CRUD completo, busca
-- **Clientes**: Cadastro e listagem
-- **Vendas**: Registro com controle de estoque
-- **Dashboard**: Visões diferentes por role
-
-## 🏦 Esquema de Banco de Dados (CockroachDB)
-
-> Observação: CockroachDB é compatível com PostgreSQL; tipos e sintaxe seguem o padrão.  
-> Habilite a extensão crypto se precisar de UUID:  
-> `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`
-
-```sql
-CREATE TABLE IF NOT EXISTS livros (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    titulo       STRING NOT NULL,
-    autor        STRING NOT NULL,
-    isbn         STRING UNIQUE NOT NULL,
-    preco        DECIMAL(10,2) NOT NULL,
-    estoque      INT NOT NULL CHECK (estoque >= 0),
-    created_at   TIMESTAMP DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS clientes (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nome         STRING NOT NULL,
-    telefone     STRING,
-    created_at   TIMESTAMP DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS vendas (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cliente_id   UUID NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
-    livro_id     UUID NOT NULL REFERENCES livros(id)   ON DELETE RESTRICT,
-    quantidade   INT   NOT NULL CHECK (quantidade > 0),
-    valor_total  DECIMAL(10,2) NOT NULL,
-    created_at   TIMESTAMP DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_vendas_cliente ON vendas(cliente_id);
-CREATE INDEX IF NOT EXISTS idx_vendas_livro   ON vendas(livro_id);
-```
-## 📂 Estrutura do Repositório
-```
-sab-gestao-biblioteca/
-├── src/
-│   ├── db.py            # Conexão ao CockroachDB (SQLAlchemy + pooling)
-│   ├── livros.py        # Regras de negócio de livros
-│   ├── clientes.py      # Regras de negócio de clientes
-│   ├── vendas.py        # Regras de negócio de vendas
-│   ├── errors.py        # Exceções personalizadas
-│   └── main.py          # CLI / orquestração
+│       └── script.js
 ├── tests/
-│   ├── test_livros.py
 │   ├── test_clientes.py
+│   ├── test_livros.py
 │   └── test_vendas.py
-├── docs/                # Documentação adicional
-├── .github/workflows/ci.yml
 ├── requirements.txt
+├── schema.sql
+├── seed.sql
+├── render.yaml
 └── README.md
 ```
-## 📐 Especificação Técnica por Módulo
-- src/db.py
-- Conexão segura ao CockroachDB Cloud
-- Usa DATABASE_URL como string de conexão completa, idêntica à exibida no painel CockroachLabs (ex.: postgresql://rodrigo:<senha>@artful-elf-13228.j77.aws...).
 
-```
-"""
-Gerencia a conexão com CockroachDB usando SQLAlchemy.
-"""
-import os
-from contextlib import contextmanager
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+## Funcionalidades Principais
 
-DATABASE_URL = os.getenv("DATABASE_URL")  # fornecida pelo provedor CockroachLabs
-if not DATABASE_URL:
-    raise RuntimeError("Variável de ambiente DATABASE_URL não definida.")
+- Cadastro, edição e listagem de livros
+- Cadastro e listagem de clientes
+- Registro de vendas com atualização de estoque
+- Autenticação e autorização básica
+- Interface responsiva para uso no navegador
+- Possibilidade de deploy separado para frontend e backend
 
-# echo=False desliga log de SQL; altere p/ True para debug
-_ENGINE = create_engine(
-    DATABASE_URL,
-    pool_size=5,
-    max_overflow=0,
-    echo=False,
-    future=True,
-)
+## Banco de Dados
 
-SessionLocal = sessionmaker(bind=_ENGINE, expire_on_commit=False, future=True)
+Use `schema.sql` e `seed.sql` para criar o esquema e dados iniciais.
 
-@contextmanager
-def get_session():
-    """Context manager que fornece sessão já com commit/rollback automático."""
-    session = SessionLocal()
-    try:
-        yield session
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+### Exemplo de conexão compatível
+
+```env
+DATABASE_URL=postgresql://user:password@host:port/dbname
 ```
 
-## src/livros.py
-- CRUD completo sobre tabela livros.
+## Observações
 
-### Funções mínimas:
+- O backend pode ser executado localmente ou hospedado no Render.
+- O frontend pode ser servido diretamente pelo backend ou publicado como site estático no GitHub Pages.
+- Se optar por GitHub Pages, mantenha a URL da API atualizada em `static/js/script.js`.
 
-- cadastrar_livro(titulo, autor, isbn, preco, estoque) -> UUID
-- listar_livros() -> List[Livro]
-- buscar(titulo:str=None, autor:str=None, isbn:str=None) -> List[Livro]
-- atualizar_estoque(isbn, delta:int)
-- Regra: estoque nunca negativo; lançar EstoqueInsuficienteError.
+## Testes
 
-## src/clientes.py
-- CRUD sobre tabela clientes.
+Para executar os testes:
 
-### Funções mínimas:
-
-- cadastrar_cliente(nome, telefone) -> UUID
-- listar_clientes() -> List[Cliente]
-- obter_cliente_por_nome(nome) -> Cliente
-- Regra: impedir duplicidade de nome + telefone.
-
-## src/vendas.py
-- Coordena transação que envolve cliente, livro e baixa de estoque.
-
-### Funções mínimas:
-
-- registrar_venda(nome_cliente, isbn, quantidade) -> UUID
-- listar_vendas() -> List[Venda]
-- relatorio_diario(data:date) -> Decimal
-- 
-### Regras:
-
-- Tudo em uma transação: se falhar baixa de estoque, rollback.
-- valor_total = livro.preco * quantidade no momento da venda.
-
-## src/errors.py
-### Classes de exceção:
-
-* LivroJaExisteError
-* LivroNaoEncontradoError
-* ClienteJaExisteError
-* ClienteNaoEncontradoError
-* EstoqueInsuficienteError
-* TransacaoErro
-  
-## src/main.py
-
+```bash
+pytest
 ```
-1  – Cadastrar livro
-2  – Listar livros
-3  – Buscar livro
-4  – Cadastrar cliente
-5  – Listar clientes
-6  – Registrar venda
-7  – Relatório de vendas (hoje)
-0  – Sair
-Cada opção chama funções de negócio; main.py não contém SQL.
-```
+
+---
+
+Se quiser, posso também adicionar um exemplo de `render.yaml` e um guia passo a passo para criar a branch `gh-pages` no GitHub.
 
 ## 🚀 Roadmap (GitHub Projects revisado)
 | #  | Cartão            | Descrição                            | Estimativa |
